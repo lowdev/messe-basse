@@ -1,0 +1,111 @@
+<dom-module id="mb-add-conversation">
+  <link rel="import" href="../bower_components/polymer/polymer.html">
+
+  <link rel="import" href="../bower_components/paper-card/paper-card.html">
+  <link rel="import" href="../bower_components/paper-input/paper-input.html">
+  <link rel="import" href="../bower_components/paper-button/paper-button.html">
+  <link rel="import" href="../bower_components/iron-image/iron-image.html">
+  <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+  <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+  <link rel="import" href="../bower_components/google-streetview-pano/google-streetview-pano.html">
+
+  <template>
+    <style is="custom-style">
+      paper-card {
+        @apply(--layout-vertical);
+        @apply(--center-justified);
+        max-width: 500px;
+        margin-left: 10px;
+        margin-right: 10px;
+        margin-top: 10px;
+      }
+      .big {
+        font-size: 22px;
+        padding: 8px 0 16px;
+        color: var(--google-grey-500);
+      }
+      .medium {
+        font-size: 16px;
+        padding-bottom: 8px;
+      }
+      .container {
+        position: relative;
+        height: 100%;
+      }
+      google-streetview-pano {
+        display: block;
+        height: 250px;
+        width: 100%;
+      }
+      .valid-button {
+          padding: 6px;
+      }
+    </style>
+    <div class="container">
+      <paper-card>
+        <div class="card-content horizontal layout center">
+          <div class="title fancy big">
+            <span id="streetName"></span>
+          </div>
+        </div>
+        <google-streetview-pano id="gs-pano" heading="350" pitch="-2" zoom="0.8" disable-default-ui>
+        </google-streetview-pano>
+        <div class="valid-button layout horizontal end-justified">
+  	    	<paper-fab icon="done" id="sendButton" on-click="saveConversation"></paper-fab>
+  	    </div>
+      </paper-card>
+    </div>
+  </template>
+  <script>
+    HTMLImports.whenReady(function() {
+      Polymer({
+        is: 'mb-add-conversation',
+        properties: {
+          title: String
+        },
+        ready: function() {
+          this.launchLoadingLocation();
+        },
+        saveConversation: function() {
+          polymer = this;
+          $.ajax("/createConversation", {
+            type: "post",
+            contentType: "application/json",
+            dataType:'json',
+            data: '{"toto": "toto"}',
+            success: function(data) {
+              openPage(1);
+            },
+            error: function() {
+              console.log("error");
+            }
+          });
+        },
+        launchLoadingLocation: function() {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(this.loadLocation, this.errorLoadLocation, { enableHighAccuracy: true, timeout: 31000, maximumAge: 90000 });
+          } else {
+            console.log("Geolocation is not supported by this browser.");
+          }
+        },
+        loadLocation: function(position) {
+          var coords = position.coords;
+          $.ajax("http://maps.googleapis.com/maps/api/geocode/json?latlng="+ coords.latitude + "," + coords.longitude + "&sensor=true", {
+            success: function(data) {
+              var title = document.getElementById("streetName");
+              title.innerHTML = data.results[0].formatted_address;
+              
+              var gsPano = document.getElementById("gs-pano");
+              gsPano.position = {lat: coords.latitude, lng: coords.longitude};
+            },
+            error: function() {
+              console.log("error");
+            }
+          });
+        },
+        errorLoadLocation: function(error) {
+        }
+      });
+    });
+  </script>
+</dom-module>

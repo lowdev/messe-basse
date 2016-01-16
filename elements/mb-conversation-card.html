@@ -1,0 +1,91 @@
+<dom-module id="mb-conversation-card">
+  <link rel="import" href="../bower_components/polymer/polymer.html">
+  <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+  <link rel="import" href="../bower_components/paper-card/paper-card.html">
+  <link rel="import" href="../bower_components/iron-image/iron-image.html">
+
+  <template>
+    <style>
+      paper-card {
+        width: 100%;
+        margin-bottom: 16px;
+      }
+      .avatar2 {
+        width: 80px;
+        height: 80px;
+        background: #9e9e9e url() center center no-repeat;
+        background-size: contain;
+      }
+      .big {
+        font-size: 22px;
+        padding: 8px 0 16px;
+        color: var(--google-grey-500);
+      }
+      .medium {
+        font-size: 16px;
+        padding-bottom: 8px;
+      }
+  	</style>
+    <paper-card>
+      <div on-click="openConversation" class="card-content horizontal layout center">
+        <div class="flex vertical layout">
+          <div class="fancy medium">à <span>{{distance}}</span></div>
+          <div class="title fancy big">{{title}}</div>
+        </div>
+        <iron-image id="streetImage" class="avatar2" style="background-color: lightgray;"
+            sizing="cover" preload fade></iron-image>
+      </div>
+    </paper-card>
+  </template>
+  <script>
+    HTMLImports.whenReady(function() {
+      Polymer({
+        is: 'mb-conversation-card',
+        properties: {
+          title: String,
+        	distance: String,
+        	location: String,
+        	id: String
+        },
+        ready: function() {
+          this.$.streetImage.src = "https://maps.googleapis.com/maps/api/streetview?size=80x80&location="
+          + this.location
+          + "&heading=151.78&pitch=-0.76&key=AIzaSyDTnSsNU0pZ3kLjAYyHIHmM5IA4vpgd4tE";
+        },
+        attached: function() {
+          if (!this.id) {
+            this.saveConversation();
+          }
+        },
+        saveConversation: function() {
+          var locationSplitted = this.location.split(",");
+          
+          var location = {};
+          location.latitude = locationSplitted[0];
+          location.longitude = locationSplitted[1];
+
+          var conversation = {};
+          conversation.location = location;
+          conversation.title = this.title;
+          
+          var polymer = this;
+          $.ajax("/createConversation", {
+            type: "post",
+            contentType: "application/json",
+            dataType:'json',
+            data: JSON.stringify(conversation),
+            success: function(id) {
+              polymer.id = id;
+            },
+            error: function() {
+              console.log("error");
+            }
+          });
+        },
+        openConversation: function() {
+          openPage('conversation/' + this.id);
+        }
+      })
+    });
+  </script>
+</dom-module>

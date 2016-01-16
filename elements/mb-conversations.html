@@ -1,0 +1,124 @@
+<dom-module id="mb-conversations">
+  <link rel="import" href="../bower_components/polymer/polymer.html">
+
+  <link rel="import" href="../bower_components/paper-card/paper-card.html">
+  <link rel="import" href="../bower_components/paper-input/paper-input.html">
+  <link rel="import" href="../bower_components/paper-button/paper-button.html">
+  <link rel="import" href="../bower_components/iron-image/iron-image.html">
+  <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+  <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+
+  <link rel="import" href="./mb-conversation-card.html">
+
+  <template>
+    <style is="custom-style">
+      #cards {
+        @apply(--layout-vertical);
+        @apply(--center-justified);
+        max-width: 400px;
+        margin-left: 10px;
+        margin-right: 10px;
+        margin-top: 10px;
+      }
+      .container {
+        position: relative;
+        height: 100%;
+      }
+      .add-button {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+      }
+    </style>
+    
+    <paper-header-panel main class="fit container">
+      <paper-toolbar>
+        <span id="title" class="flex">{{title}}</span>
+      </paper-toolbar>
+      <!--
+      <paper-fab class="add-button" icon="add" onclick="openPage(2);"></paper-fab>
+      -->
+      <div id="cards">
+        <span id="defaultConversation"></span>
+        <template is="dom-repeat" items="{{conversations}}">
+  				<mb-conversation-card title="{{item.title}}"
+  				  distance="{{item.distance}}"
+  				  location="{{item.location}}"
+  				  id="{{item.id}}">
+  				</mb-conversation-card>
+  			</template>
+      </div>
+    </paper-header-panel>
+  </template>
+  <script>
+    HTMLImports.whenReady(function() {
+      Polymer({
+        is: 'mb-conversations',
+        properties: {
+          conversations: []
+        },
+        ready: function() {
+          this.conversations = [];
+
+          this.loadConversations();
+        },
+        loadConversations: function() {
+          polymer = this;
+          $.ajax("/loadConversations", {
+            success: function(data) {
+              for (i = 0; i < data.length; i++) {
+                polymer.displayConversation(data[i]);
+              }
+              
+              console.log("error; " + data.length);
+              if (0 == data.length) {
+                polymer.createDefaultConversation();
+              }
+            },
+            error: function() {
+              console.log("error");
+            }
+          });
+        },
+        displayConversation: function(conversation) {
+          var conversationWithValue = {
+            id: conversation.name,
+            title: conversation.title,
+            distance: '?',
+            location: conversation.location.latitude + ',' + conversation.location.longitude
+          };
+          
+          this.push("conversations", conversationWithValue);
+        },
+        createDefaultConversation: function() {
+          this.launchLoadingLocation();
+        },
+        launchLoadingLocation: function() {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(this.loadLocation, this.errorLoadLocation, { enableHighAccuracy: true, timeout: 31000, maximumAge: 90000 });
+          } else {
+            console.log("Geolocation is not supported by this browser.");
+          }
+        },
+        loadLocation: function(position) {
+          var coords = position.coords;
+          $.ajax("http://maps.googleapis.com/maps/api/geocode/json?latlng="+ coords.latitude + "," + coords.longitude + "&sensor=true", {
+            success: function(data) {
+              var defaultConversation = document.getElementById("defaultConversation");
+              defaultConversation.innerHTML = "<mb-conversation-card" 
+              + " title='" + data.results[0].formatted_address + "'"
+              + " distance='" + "0m" + "'"
+              + " location='" + coords.latitude + "," + coords.longitude + "'"
+              + "></mb-conversation-card>";
+            },
+            error: function() {
+              console.log("error");
+            }
+          });
+        },
+        errorLoadLocation: function(error) {
+        }
+      });
+    });
+  </script>
+</dom-module>

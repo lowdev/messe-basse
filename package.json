@@ -7,8 +7,10 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "ejs": "2.3.3",
-    "express": "4.13.3"
+    "express": "4.13.3",
+	"socket.io": "1.4.4",
+	"usergrid": "2.0.0-rc.0",
+	"body-parser": "1.14.2"
   },
   "engines": {
     "node": "0.12.7"

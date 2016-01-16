@@ -1,0 +1,80 @@
+<dom-module id="mb-speudo">
+  <link rel="import" href="../bower_components/polymer/polymer.html">
+
+  <link rel="import" href="../bower_components/paper-card/paper-card.html">
+  <link rel="import" href="../bower_components/paper-input/paper-input.html">
+  <link rel="import" href="../bower_components/paper-button/paper-button.html">
+  <link rel="import" href="../bower_components/iron-form/iron-form.html">
+
+  <template>
+    <style>
+      #cards {
+        @apply(--layout-vertical);
+        @apply(--center-justified);
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 60px;
+      }
+      paper-card {
+        width: 100%;
+        margin-bottom: 16px;
+      }
+      
+      paper-button.colorful {
+        color: #4285f4;
+      }
+      paper-button[raised].colorful {
+        background: #4285f4;
+        color: #fff;
+      }
+      paper-button[toggles][active].colorful {
+        background-color: rgba(66, 133, 244, 0.25);
+      }
+      paper-button[toggles][active][raised].colorful {
+        background-color: rgba(66, 133, 244, 0.75);
+      }
+    </style>
+    
+    <form is="iron-form" id="form" action="">
+      <div id="cards">
+        <paper-card>
+          <div class="card-content">
+            <div class="horizontal layout center-justified center">
+              
+                <paper-input
+                  error-message="Tu es anonyme choisis le speudo que tu veux :-)"
+                  label="Choisis ton speudo"
+                  value="{{speudo::input}}">
+                </paper-input>
+                <paper-button tabindex="0" class="colorful custom" on-click="submitForm"><iron-icon icon="check">
+                </iron-icon>ok</paper-button>
+              
+            </div>
+          </div>
+        </paper-card>
+      </div>
+    </form>
+    
+  </template>
+  <script>
+    HTMLImports.whenReady(function() {
+      Polymer({
+        is: 'mb-speudo',
+        properties: {
+          speudo: String
+        },
+        listeners: {
+          'iron-form-submit': '_handleSubmit'
+        },
+        _handleSubmit: function(e) {
+          localStorage.setItem("speudo", this.speudo);
+          openPage(1);
+        },
+        submitForm: function(e) {
+          this.$.form.submit();
+        }
+      });
+    });
+  </script>
+</dom-module>
