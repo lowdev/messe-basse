@@ -52,11 +52,15 @@
     <app-route path="/home"             import="/elements/mb-conversations.html"></app-route>
     <app-route path="/conversation/:id" import="/elements/mb-conversation-dashboard.html"></app-route>
   </app-router>
-  
 
   <script src="main.js"></script>
   <script src="jquery-2.1.4.min.js"></script>
   <script src="socket.io.js"></script>
   <script src="moment.min.js"></script>
+  <script>
+	HTMLImports.whenReady(function () {
+		document.querySelector('app-router').go('/home');
+	});
+  </script>
 </body>
 </html>
