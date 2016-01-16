@@ -15,16 +15,6 @@ var occupancy = 0;
 app.use(express.static(__dirname));
 app.use(bodyParser.json());
 
-// Model
-var conversationSchema = mongoose.Schema({
-    title: String,
-	loc: {
-		type: [Number],  // [<longitude>, <latitude>]
-		index: '2d'      // create the geospatial index
-    }
-});
-var Conversation = mongoose.model('Conversation', conversationSchema);
-
 var port = process.env.PORT || 5000;
 http.listen(port, function(){
   console.log('listening on *:' + port);
@@ -37,6 +27,24 @@ http.listen(port, function(){
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
+
+// Model
+var conversationSchema = mongoose.Schema({
+    title: String,
+	loc: {
+		type: [Number],  // [<longitude>, <latitude>]
+		index: '2d'      // create the geospatial index
+    }
+});
+var Conversation = mongoose.model('Conversation', conversationSchema);
+
+var messageSchema = mongoose.Schema({
+    speudo: String,
+	text: String,
+	createdAt: Date,
+	conversationId: String
+});
+var Message = mongoose.model('Message', messageSchema);
 
 app.get('/loadConversations', function(req, res) {
 	//console.log('loadConversations');
@@ -76,6 +84,11 @@ function saveConversation(conversationFromGui) {
 }
 
 app.post('/loadmessages', function(req, res) {
+	//console.log('a user connected : ' + req.body.id);
+	Message.find({ conversationId: req.body.id }, function (err, messages) {
+	  if (err) return console.error(err);
+	  res.json(200, messages);
+	});
 });
 
 io.on('connection', function(socket){
@@ -96,25 +109,15 @@ io.on('connection', function(socket){
 		socket.broadcast.emit('chat message', msg);
 	});
 });
+function saveMessage(messageFromGui) {
+	console.log('Save message');
+	var message = new Message();
+	message.speudo = messageFromGui.speudo;
+	message.text = messageFromGui.text;
+	message.createdAt = messageFromGui.createdAt;
+	message.conversationId = messageFromGui.conversationId;
 
-function saveMessage(message) {
-}
-
-function generateUUID() {
-    var d = new Date().getTime();
-    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = (d + Math.random()*16)%16 | 0;
-        d = Math.floor(d/16);
-        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
-    });
-    return uuid;
-};
-
-
-function debugHeaders(req) {
-	console.log('URL: ' + req.url);
-	for (var key in req.headers) {
-		console.log(key + ': ' + req.headers[key]);
-	}
-	console.log('\n\n');
+	message.save(function (err, message) {
+	  if (err) return console.error(err);
+	});
 }

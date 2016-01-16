@@ -191,10 +191,14 @@
 
           this.occupancy = 0;
           this.messages = [];
-          this.loadMessages();
           
           localStorage.setItem("speudo", "Anonymous");
           this.$.messageInput.focus();
+        },
+		attached: function() {
+          if (this.id) {
+            this.loadMessages();
+          }
         },
         listeners: {
           'iron-form-submit': '_handleSubmit'
@@ -203,7 +207,7 @@
           var messageObject = {};
           messageObject.speudo = localStorage.getItem("speudo");
           messageObject.text = this.messageInput;
-          messageObject.timestamp = new Date().toISOString();
+          messageObject.createdAt = new Date();
           messageObject.conversationId = this.id;
           
           this.displayMessage(messageObject);
@@ -227,7 +231,7 @@
             text: message.text,
             status: 'online',
             avatar: "https://cdn2.iconfinder.com/data/icons/faceavatars/PNG/D04.png",
-            timestamp: moment(message.timestamp).fromNow()
+            timestamp: moment(message.createdAt).fromNow()
           }
           
           this.push("messages", messageWithValue);
@@ -240,12 +244,15 @@
           //chatDiv.scrollTop = chatDiv.scrollHeight;
         },
         loadMessages: function() {
+		  var conversation = {};
+          conversation.id = this.id;
+		
           polymer = this;
           $.ajax("/loadmessages", {
             type: "post",
             contentType: "application/json",
             dataType:'json',
-            data: polymer.id,
+            data: JSON.stringify(conversation),
             success: function(data) {
               for (i = 0; i < data.length; i++) {
                 polymer.displayMessage(data[i]);
