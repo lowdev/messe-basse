@@ -82,10 +82,10 @@
         },
         displayConversation: function(conversation) {
           var conversationWithValue = {
-            id: conversation.name,
+            id: conversation._id,
             title: conversation.title,
             distance: '?',
-            location: conversation.location.latitude + ',' + conversation.location.longitude
+            location: conversation.loc[1] + ',' + conversation.loc[0]
           };
           
           this.push("conversations", conversationWithValue);
