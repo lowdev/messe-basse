@@ -9,7 +9,6 @@ var mongoose = require('mongoose');
 mongoose.connect('mongodb://low:low@ds035975.mongolab.com:35975/messe-basse');
 var db = mongoose.connection;
 
-var messages = new Array();
 var occupancy = 0;
 
 app.use(express.static(__dirname));
@@ -68,6 +67,13 @@ app.get('/loadConversations', function(req, res) {
 	});
 });
 
+app.get('/occupancy', function(req, res) {
+	//console.log('Get occupancy: ' + occupancy);
+	var data = {};
+	data.occupancy = occupancy;
+	res.json(200, data);
+});
+
 app.post('/createConversation', function(req, res) {
 	res.json(saveConversation(req.body));
 });
@@ -110,7 +116,7 @@ io.on('connection', function(socket){
 	});
 });
 function saveMessage(messageFromGui) {
-	console.log('Save message');
+	//console.log('Save message');
 	var message = new Message();
 	message.speudo = messageFromGui.speudo;
 	message.text = messageFromGui.text;

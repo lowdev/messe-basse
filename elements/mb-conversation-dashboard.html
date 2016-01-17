@@ -195,9 +195,10 @@
           //localStorage.setItem("speudo", "Anonymous");
           this.$.messageInput.focus();
         },
-		attached: function() {
+        attached: function() {
           if (this.id) {
             this.loadMessages();
+            this.displayOccupancy();
           }
         },
         listeners: {
@@ -244,7 +245,7 @@
           //chatDiv.scrollTop = chatDiv.scrollHeight;
         },
         loadMessages: function() {
-		  var conversation = {};
+          var conversation = {};
           conversation.id = this.id;
 		
           polymer = this;
@@ -257,6 +258,24 @@
               for (i = 0; i < data.length; i++) {
                 polymer.displayMessage(data[i]);
               }
+            },
+            error: function() {
+              console.log("error");
+            }
+          });
+        },
+        displayOccupancy: function() {
+          var conversation = {};
+          conversation.id = this.id;
+
+          polymer = this;
+          $.ajax("/occupancy", {
+            type: "get",
+            contentType: "application/json",
+            dataType:'json',
+            data: JSON.stringify(conversation),
+            success: function(data) {
+              polymer.updateOccupancy(data);
             },
             error: function() {
               console.log("error");
