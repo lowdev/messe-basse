@@ -52,13 +52,14 @@
               <div class="horizontal layout center-justified center">
                 
                   <paper-input
-                    error-message="Tu es anonyme choisis le speudo que tu veux :-)"
+                    class="flex"
                     label="Choisis ton speudo"
                     value="{{speudo::input}}">
                   </paper-input>
-                  <paper-button tabindex="0" class="colorful custom" on-click="submitForm"><iron-icon icon="check">
-                  </iron-icon>ok</paper-button>
-                
+                  <paper-button tabindex="0" class="colorful custom" on-click="submitForm">
+                    <iron-icon icon="check">
+                    </iron-icon>ok
+                  </paper-button>
               </div>
             </div>
           </paper-card>
