@@ -139,7 +139,7 @@
   	</style>
     <paper-header-panel main class="fit">
       <paper-toolbar>
-        <paper-icon-button icon="icons:arrow-back" onclick="openPage('home');" raised></paper-icon-button>
+        <paper-icon-button icon="icons:arrow-back" onclick="openPage('conversations');" raised></paper-icon-button>
         <span id="title" class="flex">{{title}}</span>
         <div>
           <iron-icon icon="account-circle"></iron-icon>
@@ -192,7 +192,7 @@
           this.occupancy = 0;
           this.messages = [];
           
-          localStorage.setItem("speudo", "Anonymous");
+          //localStorage.setItem("speudo", "Anonymous");
           this.$.messageInput.focus();
         },
 		attached: function() {
